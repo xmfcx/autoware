@@ -3,8 +3,20 @@
 ## Build
 
 ```bash
-cd autoware/docker-new
-docker build -t autoware-base -f autoware-base.Dockerfile .
+cd autoware
+
+# One-time (if you haven’t already):
+docker buildx create --use --name awbuilder
+docker buildx inspect --bootstrap
+
+# Build for your current platform and load into the local docker image store:
+docker buildx build --progress=plain \
+  --build-arg DEBUG_BUST="$(date +%s)" \
+  -t autoware-base \
+  -f docker-new/autoware-base.Dockerfile \
+  --load \
+  .
+
 ```
 
 ## Usage
