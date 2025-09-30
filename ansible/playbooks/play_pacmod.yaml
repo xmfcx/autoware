@@ -1,0 +1,4 @@
+- name: Whatever
+  hosts: localhost
+  roles:
+    - role: autoware.dev_env.pacmod
