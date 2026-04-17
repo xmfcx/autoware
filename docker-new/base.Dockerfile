@@ -10,7 +10,16 @@ ARG USERNAME=aw
 RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache && \
     echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/99-no-recommends && \
-    echo 'APT::Install-Suggests "false";' >> /etc/apt/apt.conf.d/99-no-recommends
+    echo 'APT::Install-Suggests "false";' >> /etc/apt/apt.conf.d/99-no-recommends && \
+    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99-retries && \
+    echo 'Acquire::http::Timeout "30";' >> /etc/apt/apt.conf.d/99-retries && \
+    echo 'Acquire::https::Timeout "30";' >> /etc/apt/apt.conf.d/99-retries && \
+    printf 'http://azure.archive.ubuntu.com/ubuntu\tpriority:1\nhttp://archive.ubuntu.com/ubuntu\tpriority:2\n' > /etc/apt/ubuntu-mirrors.list && \
+    for f in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do \
+      if [ -f "$f" ]; then \
+        sed -E -i 's|http://archive\.ubuntu\.com/ubuntu/?|mirror+file:///etc/apt/ubuntu-mirrors.list|g' "$f"; \
+      fi; \
+    done
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update && \
